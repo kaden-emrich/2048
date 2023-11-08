@@ -36,6 +36,18 @@ function updateSquares() {
     }
 }
 
+function spawnSquares() {
+    let row = Math.floor(Math.random() * 4);
+    let column = Math.floor(Math.random() * 4);
+
+    while(values[row][column] != 0) {
+        row = Math.floor(Math.random() * 4);
+        column = Math.floor(Math.random() * 4);
+    }
+
+    values[row][column] = 2;
+}
+
 function moveUp() {
     for(let n = 0; n < 4; n++) {
         for(let i = 1; i < values.length; i++) {
@@ -112,15 +124,19 @@ document.addEventListener('keydown', (event) => {
     switch(event.key) {
         case 'ArrowUp':
             moveUp();
+            spawnSquares();
             break;
         case 'ArrowDown':
             moveDown();
+            spawnSquares();
             break;
         case 'ArrowLeft':
             moveLeft();
+            spawnSquares();
             break;
         case 'ArrowRight':
             moveRight();
+            spawnSquares();
             break;
     }
 });
@@ -133,9 +149,6 @@ init();
 
 function test1() {
     values[0][0] = 2;
-    values[2][2] = 2;
-    values[2][1] = 4;
-    values[1][0] = 4;
     updateSquares();
 }
 
