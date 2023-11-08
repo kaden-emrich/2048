@@ -1,0 +1,22 @@
+body {
+    font-family: monospace;
+}
+
+#game {
+    display: flex;
+    width: 400px;
+    height: 400px;
+    border: 2px solid black;
+    flex-wrap: wrap;
+}
+
+.gridSquare {
+    display: flex;
+    box-sizing: border-box;
+    width: 25%;
+    height: 25%;
+    font-size: 80px;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid grey;
+}
