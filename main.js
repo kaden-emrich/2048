@@ -28,15 +28,49 @@ function updateSquares() {
         for(let j = 0; j < values[i].length; j++) {
             if(values[i][j] != 0) {
                 squares[i][j].innerText = values[i][j];
+
+                if(values[i][j] <= 8192) {
+                    squares[i][j].classList = 'gridSquare x' + values[i][j];
+                }
+                else {
+                    squares[i][j].classList = 'gridSquare x8192';
+                }
             }
             else {
                 squares[i][j].innerText = '';
+                squares[i][j].classList = 'gridSquare';
             }
         }
     }
 }
 
+function hasEmptyValues() {
+    for(let i = 0; i < values.length; i++) {
+        for(let j = 0; j < values[i].length; j++) {
+            if(values[i][j] == 0) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function compareValues(otherValues) {
+    for(let i = 0; i < values.length; i++) {
+        for(let j = 0; j < values[i].length; j++) {
+            if(values[i][j] != otherValues[i][j]) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 function spawnSquares() {
+    if(!hasEmptyValues()) {
+        return;
+    }
+
     let row = Math.floor(Math.random() * 4);
     let column = Math.floor(Math.random() * 4);
 
@@ -46,110 +80,157 @@ function spawnSquares() {
     }
 
     values[row][column] = 2;
-}
 
-function moveUp() {
-    for(let n = 0; n < 4; n++) {
-        for(let i = 1; i < values.length; i++) {
-            for(let j = 0; j < values[i].length; j++) {
-                if(values[i - 1][j] == values[i][j]) {
-                    values[i - 1][j] = values[i][j] * 2;
-                    values[i][j] = 0;
-                }
-                else if(values[i - 1][j] == 0) {
-                    values[i - 1][j] = values[i][j];
-                    values[i][j] = 0;
-                }
-            }
-        }
-    }
     updateSquares();
 }
 
-function moveDown() {
-    for(let n = 0; n < 4; n++) {
-        for(let i = 2; i >= 0; i--) {
-            for(let j = 0; j < values[i].length; j++) {
-                if(values[i + 1][j] == values[i][j]) {
-                    values[i + 1][j] = values[i][j] * 2;
-                    values[i][j] = 0;
-                }
-                else if(values[i + 1][j] == 0) {
-                    values[i + 1][j] = values[i][j];
-                    values[i][j] = 0;
-                }
-            }
+function getColumn(array, columnIndex) {
+    let column = [];
+
+    for(let i = 0; i < array.length; i++) {
+        column.push(array[i][columnIndex]);
+    }
+
+    return column;
+}
+
+function flip(array) {
+    let newArray = [[]];
+
+    for(let i = 0; i < array[0].length; i++) {
+        newArray[i] = getColumn(array, i);
+    }
+
+    return newArray;
+}
+
+function reverse(array) {
+    let newArray = [];
+
+    for(let i = array.length - 1; i >= 0; i--) {
+        newArray.push(array[i]);
+    }
+
+    return newArray;
+}
+
+function trimZeros(array) {
+    let newArray = [];
+
+    for(let i = 0; i < array.length; i++) {
+        if(array[i] != 0) {
+            newArray.push(array[i]);
         }
     }
-    updateSquares();
+
+    return newArray;
+}
+
+function fillZeros(array) {
+    while(array.length < 4) {
+        array.push(0);
+    }
+
+    return array;
+}
+
+function slide(array) {
+    array = trimZeros(array);
+
+    for(let i = 0; i < array.length - 1; i++) {
+        if(array[i] == array[i+1]) {
+            array[i] *= 2;
+            array[i+1] = 0;
+        }
+    }
+
+    array = trimZeros(array);
+
+    return fillZeros(array);
 }
 
 function moveLeft() {
-    for(let n = 0; n < 4; n++) {
-        for(let j = 1; j < values[0].length; j++) {
-            for(let i = 0; i < values.length; i++) {
-                if(values[i][j - 1] == values[i][j]) {
-                    values[i][j - 1] = values[i][j] * 2;
-                    values[i][j] = 0;
-                }
-                else if(values[i][j - 1] == 0) {
-                    values[i][j - 1] = values[i][j];
-                    values[i][j] = 0;
-                }
-            }
-        }
+    for(let i = 0; i < values.length; i++) {
+        values[i] = slide(values[i]);
     }
+    
     updateSquares();
 }
 
 function moveRight() {
-    for(let n = 0; n < 4; n++) {
-        for(let j = 2; j >= 0; j--) {
-            for(let i = 0; i < values.length; i++) {
-                if(values[i][j + 1] == values[i][j]) {
-                    values[i][j + 1] = values[i][j] * 2;
-                    values[i][j] = 0;
-                }
-                else if(values[i][j + 1] == 0) {
-                    values[i][j + 1] = values[i][j];
-                    values[i][j] = 0;
-                }
-            }
-        }
+    for(let i = 0; i < values.length; i++) {
+        values[i] = reverse(slide(reverse(values[i])));
     }
+    
     updateSquares();
 }
 
-document.addEventListener('keydown', (event) => {
+function moveUp() {
+    let flipedValues = flip(values);
+
+    for(let i = 0; i < flipedValues[0].length; i++) {
+        flipedValues[i] = slide(flipedValues[i]);
+    }
+
+    values = flip(flipedValues);
+
+    updateSquares();
+}
+
+function moveDown() {
+    let flipedValues = flip(values);
+
+    for(let i = 0; i < flipedValues[0].length; i++) {
+        flipedValues[i] = reverse(slide(reverse(flipedValues[i])));
+    }
+
+    values = flip(flipedValues);
+
+    updateSquares();
+}
+
+var testVar1 = 0;
+
+document.addEventListener('keyup', (event) => {
+    let lastValues = JSON.stringify(values);
+
     switch(event.key) {
         case 'ArrowUp':
             moveUp();
-            spawnSquares();
             break;
         case 'ArrowDown':
             moveDown();
-            spawnSquares();
             break;
         case 'ArrowLeft':
             moveLeft();
-            spawnSquares();
             break;
         case 'ArrowRight':
             moveRight();
-            spawnSquares();
             break;
+    }
+
+    if(!compareValues(JSON.parse(lastValues))) {
+        console.log('spawning squares' + testVar1);
+        testVar1 ++;
+        spawnSquares();
     }
 });
 
 function init() {
     initGrid();
+
+    spawnSquares();
+    spawnSquares();
 }
 
 init();
 
 function test1() {
-    values[0][0] = 2;
+    values = [
+        [2, 2, 2, 2],
+        [2, 2, 2, 2],
+        [4, 4, 8, 8],
+        [4, 4, 8, 8]
+    ]
     updateSquares();
 }
-
-test1();
