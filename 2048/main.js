@@ -29,11 +29,11 @@ function updateSquares() {
             if(values[i][j] != 0) {
                 squares[i][j].innerText = values[i][j];
 
-                if(values[i][j] <= 12288) {
+                if(values[i][j] <= 8192) {
                     squares[i][j].classList = 'gridSquare x' + values[i][j];
                 }
                 else {
-                    squares[i][j].classList = 'gridSquare x12288';
+                    squares[i][j].classList = 'gridSquare x8192';
                 }
             }
             else {
@@ -79,7 +79,7 @@ function spawnSquares() {
         column = Math.floor(Math.random() * 4);
     }
 
-    values[row][column] = 3;
+    values[row][column] = 2;
 
     updateSquares();
 }
@@ -226,12 +226,11 @@ function init() {
 init();
 
 function test1() {
-    initGrid();
     values = [
-        [3, 6, 12, 24],
-        [48, 96, 192, 384],
-        [768, 1536, 3072, 6144],
-        [12288, 12288, 12288, 12288]
+        [2, 2, 2, 2],
+        [2, 2, 2, 2],
+        [4, 4, 8, 8],
+        [4, 4, 8, 8]
     ]
     updateSquares();
 }

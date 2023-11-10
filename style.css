@@ -8,6 +8,14 @@ body {
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    background-color: #def0ff;
+}
+
+.header-title {
+    margin: 20px;
+    font-size: 70px;
+    color: #717372;
+    font-weight: bold;
 }
 
 #game {
@@ -15,84 +23,88 @@ body {
     width: 500px;
     height: 500px;
     flex-wrap: wrap;
-    background-color: #cdc1b5;
-    border: 6px solid #bbada0;
+    background-color: #a0adbb;
+    border: 6px solid #a0adbb;
+    border-radius: 5px;
 }
 
 .gridSquare {
     display: flex;
     box-sizing: border-box;
+    background-clip: border-box;
     width: 25%;
     height: 25%;
     font-size: 45px;
     font-weight: bold;
     justify-content: center;
     align-items: center;
-    background-color: #cdc1b5;
-    border: 5px solid #bbada0;
+    background-color: #b5c1cd;
+    border: 5px solid #a0adbb;
+    border-radius: 10px;
 }
 
-.x2 {
-    background: #eee4da;
-    color: #727371;
+.x3 {
+    background: #dae4ee;
+    color: #717372;
 }
 
-.x4 {
-    background-color: #ece0ca;
-    color: #727371;
+.x6 {
+    background-color: #cae0ec;
+    color: #717372;
 }
 
-.x8 {
-    background-color: #f4b17a;
+.x12 {
+    background-color: #7ab1f4;
     color: white;
 }
 
-.x16 {
-    background-color: #f59575;
+.x24 {
+    background-color: #7595f5;
     color: white;
 }
 
-.x32 {
-    background-color: #f57c5f;
+.x48 {
+    background-color: #5f7cf5;
     color: white;
 }
 
-.x64 {
-    background-color: #f65b3d;
+.x96 {
+    background-color: #3d5bf6;
     color: white;
 }
 
-.x128 {
-    background-color: #edce71;
+.x192 {
+    background-color: #71ceed;
     color: white;
 }
 
-.x256 {
-    background-color: #edcc63;
+.x384 {
+    background-color: #63cced;
     color: white;
 }
 
-.x512 {
-    background-color: #edc651;
+.x768 {
+    background-color: #51c6ed;
     color: white;
 }
 
-.x1024 {
-    background-color: #eec744;
+.x1536 {
+    background-color: #44c7ee;
     color: white;
 }
 
-.x2048 {
-    background-color: #ecc230;
+.x3072 {
+    background-color: #123456;
     color: white;
 }
 
-.x4096 {
-    background-color: #fe3d3d;
+.x6144 {
+    background-color: #0e2940;
     color: white;
 }
 
-.x8192 {
-    background-color: #ff2020;
+.x12288 {
+    font-size: 30px;
+    background-color: #051629;
     color: white;
 }
