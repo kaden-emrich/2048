@@ -1,3 +1,7 @@
+:root {
+    --animation-time: 100ms;
+}
+
 body {
     display: flex;
     height: 100vh;
@@ -41,6 +45,12 @@ body {
     background-color: #b5c1cd;
     border: 5px solid #a0adbb;
     border-radius: 10px;
+}
+
+.animation-square {
+    position: fixed;
+    transition: top var(--animation-time), left var(--animation-time);
+    /* border: 5px solid red; */
 }
 
 .x3 {

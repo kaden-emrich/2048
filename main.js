@@ -3,6 +3,8 @@ const gameDiv = document.getElementById('game');
 var squares = [[]];
 var values = [];
 
+const animationTime = 100;
+
 function initGrid() {
     gameDiv.innerHTML = '';
     squares = [[]];
@@ -23,22 +25,237 @@ function initGrid() {
     }
 }
 
-function updateSquares() {
-    for(let i = 0; i < values.length; i++) {
-        for(let j = 0; j < values[i].length; j++) {
-            if(values[i][j] != 0) {
-                squares[i][j].innerText = values[i][j];
+function createTempSquares() {
+    let oldSquares = [[], [], [], []];
+    for(let i = 0; i < squares.length; i++) {
+        for(let j = 0; j < squares[i].length; j++) {
+            if(squares[i][j].classList.length > 1) {
+                let nextSquare = document.createElement('div');
+                nextSquare.classList = squares[i][j].classList;
+                nextSquare.classList.add('animation-square');
+                nextSquare.style = "position: fixed;";
+                nextSquare.style.top = squares[i][j].offsetTop + 'px';
+                nextSquare.style.left = squares[i][j].offsetLeft + 'px';
+                nextSquare.style.width = squares[i][j].offsetWidth + 'px';
+                nextSquare.style.height = squares[i][j].offsetHeight + 'px';
+                nextSquare.innerText = squares[i][j].innerText;
+                gameDiv.appendChild(nextSquare);
 
-                if(values[i][j] <= 12288) {
-                    squares[i][j].classList = 'gridSquare x' + values[i][j];
-                }
-                else {
-                    squares[i][j].classList = 'gridSquare x12288';
-                }
+                oldSquares[i][j] = nextSquare;
             }
             else {
+                oldSquares[i][j] = null;
+            }
+        }
+    }
+    return oldSquares;
+}
+
+function clearTempSquares(oldSquares) {
+    for(let i = 0; i < oldSquares.length; i++) {
+        for(let j = 0; j < oldSquares[i].length; j++) {
+            if(oldSquares[i][j] != null) {
+                oldSquares[i][j].remove();
+            }
+        }
+    }
+}
+
+function updateSquares(animation = "none") {
+    if(animation == 'left') {
+        let oldSquares = createTempSquares();
+
+        for(let i = 0; i < squares.length; i++) {
+            for(let j = 0; j < squares[i].length; j++) {
                 squares[i][j].innerText = '';
-                squares[i][j].classList = 'gridSquare';
+                squares[i][j].className = 'gridSquare';
+            }
+        }
+
+        for(let i = 0; i < oldSquares.length; i++) {
+            let offset = 0;
+            let lastWasMurge = false;
+            for(let j = 0; j < oldSquares[i].length; j++) {
+                if(oldSquares[i][j]) {
+                    oldSquares[i][j].style.left = squares[i][offset].offsetLeft + "px";
+
+                    let doMurge = false;
+                    if(!lastWasMurge) {
+                        for(let n = j + 1; n < oldSquares[i].length; n++) {
+                            if(oldSquares[i][n]) {
+                                if(oldSquares[i][n].innerText == oldSquares[i][j].innerText) {
+                                    doMurge = true;
+                                    lastWasMurge = true;
+                                }
+                                n = 1000;
+                            }
+                        }
+                    }
+                    else {
+                        lastWasMurge = false;
+                    }
+                    
+                    offset += doMurge ? 0 : 1;
+                }
+            }
+        }
+
+        setTimeout(() => {
+            updateSquares();
+
+            clearTempSquares(oldSquares);
+        }, animationTime);
+    }
+    else if(animation == 'right') {
+        let oldSquares = createTempSquares();
+
+        for(let i = 0; i < squares.length; i++) {
+            for(let j = 0; j < squares[i].length; j++) {
+                squares[i][j].innerText = '';
+                squares[i][j].className = 'gridSquare';
+            }
+        }
+
+        for(let i = 0; i < oldSquares.length; i++) {
+            let offset = 3;
+            let lastWasMurge = false;
+            for(let j = oldSquares[i].length - 1; j >= 0; j--) {
+                if(oldSquares[i][j]) {
+                    oldSquares[i][j].style.left = squares[i][offset].offsetLeft + "px";
+
+                    let doMurge = false;
+                    if(!lastWasMurge) {
+                        for(let n = j - 1; n >= 0; n--) {
+                            if(oldSquares[i][n]) {
+                                if(oldSquares[i][n].innerText == oldSquares[i][j].innerText) {
+                                    doMurge = true;
+                                    lastWasMurge = true;
+                                }
+                                n = -1;
+                            }
+                        }
+                    }
+                    else {
+                        lastWasMurge = false;
+                    }
+                    
+                    offset -= doMurge ? 0 : 1;
+                }
+            }
+        }
+
+        setTimeout(() => {
+            updateSquares();
+
+            clearTempSquares(oldSquares);
+        }, animationTime);
+    }
+    else if(animation == 'up') {
+        let oldSquares = createTempSquares();
+
+        for(let i = 0; i < squares.length; i++) {
+            for(let j = 0; j < squares[i].length; j++) {
+                squares[i][j].innerText = '';
+                squares[i][j].className = 'gridSquare';
+            }
+        }
+
+        for(let i = 0; i < oldSquares[0].length; i++) {
+            let offset = 0;
+            let lastWasMurge = false;
+            for(let j = 0; j < oldSquares.length; j++) {
+                if(oldSquares[j][i]) {
+                    oldSquares[j][i].style.top = squares[offset][i].offsetTop + "px";
+
+                    let doMurge = false;
+                    if(!lastWasMurge) {
+                        for(let n = j + 1; n < oldSquares.length; n++) {
+                            if(oldSquares[n] && oldSquares[n][i]) {
+                                if(oldSquares[n][i].innerText == oldSquares[j][i].innerText) {
+                                    doMurge = true;
+                                    lastWasMurge = true;
+                                }
+                                n = 1000;
+                            }
+                        }
+                    }
+                    else {
+                        lastWasMurge = false;
+                    }
+                    
+                    offset += doMurge ? 0 : 1;
+                }
+            }
+        }
+
+        setTimeout(() => {
+            updateSquares();
+
+            clearTempSquares(oldSquares);
+        }, animationTime);
+    }
+    else if(animation == 'down') {
+        let oldSquares = createTempSquares();
+
+        for(let i = 0; i < squares.length; i++) {
+            for(let j = 0; j < squares[i].length; j++) {
+                squares[i][j].innerText = '';
+                squares[i][j].className = 'gridSquare';
+            }
+        }
+
+        for(let i = 0; i < oldSquares[0].length; i++) {
+            let offset = 3;
+            let lastWasMurge = false;
+            for(let j = oldSquares.length-1; j >= 0; j--) {
+                if(oldSquares[j][i]) {
+                    oldSquares[j][i].style.top = squares[offset][i].offsetTop + "px";
+
+                    let doMurge = false;
+                    if(!lastWasMurge) {
+                        for(let n = j - 1; n >= 0; n--) {
+                            if(oldSquares[n] && oldSquares[n][i]) {
+                                if(oldSquares[n][i].innerText == oldSquares[j][i].innerText) {
+                                    doMurge = true;
+                                    lastWasMurge = true;
+                                }
+                                n = -1;
+                            }
+                        }
+                    }
+                    else {
+                        lastWasMurge = false;
+                    }
+                    
+                    offset -= doMurge ? 0 : 1;
+                }
+            }
+        }
+
+        setTimeout(() => {
+            updateSquares();
+
+            clearTempSquares(oldSquares);
+        }, animationTime);
+    }
+    else {
+        // console.log("HELP"); // for debugging
+        for(let i = 0; i < values.length; i++) {
+            for(let j = 0; j < values[i].length; j++) {
+                if(values[i][j] != 0) {
+                    squares[i][j].innerText = values[i][j];
+
+                    if(values[i][j] <= 12288) {
+                        squares[i][j].classList = 'gridSquare x' + values[i][j];
+                    }
+                    else {
+                        squares[i][j].classList = 'gridSquare x12288';
+                    }
+                }
+                else {
+                    squares[i][j].innerText = '';
+                    squares[i][j].classList = 'gridSquare';
+                }
             }
         }
     }
@@ -154,7 +371,7 @@ function moveLeft() {
         values[i] = slide(values[i]);
     }
     
-    updateSquares();
+    updateSquares('left');
 }
 
 function moveRight() {
@@ -162,7 +379,7 @@ function moveRight() {
         values[i] = reverse(slide(reverse(values[i])));
     }
     
-    updateSquares();
+    updateSquares('right');
 }
 
 function moveUp() {
@@ -174,7 +391,7 @@ function moveUp() {
 
     values = flip(flipedValues);
 
-    updateSquares();
+    updateSquares('up');
 }
 
 function moveDown() {
@@ -186,7 +403,7 @@ function moveDown() {
 
     values = flip(flipedValues);
 
-    updateSquares();
+    updateSquares('down');
 }
 
 var testVar1 = 0;
@@ -209,11 +426,13 @@ document.addEventListener('keyup', (event) => {
             break;
     }
 
-    if(!compareValues(JSON.parse(lastValues))) {
-        console.log('spawning squares' + testVar1);
-        testVar1 ++;
-        spawnSquares();
-    }
+    setTimeout(() => {
+        if(!compareValues(JSON.parse(lastValues))) {
+            // console.log('spawning squares' + testVar1); // for debugging
+            testVar1 ++;
+            spawnSquares();
+        }
+    }, animationTime);
 });
 
 function init() {
