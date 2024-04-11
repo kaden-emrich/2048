@@ -1,9 +1,16 @@
 const gameDiv = document.getElementById('game');
+const cssRoot = document.querySelector(':root');
 
 var squares = [[]];
 var values = [];
 
-const animationTime = 100;
+var animationTime = 100;
+const gridBorderWidth = 5;
+
+function setAnimationTime(timeMS) {
+    animationTime = timeMS;
+    cssRoot.style.setProperty('--animation-time', animationTime + 'ms');
+}
 
 function initGrid() {
     gameDiv.innerHTML = '';
@@ -25,6 +32,14 @@ function initGrid() {
     }
 }
 
+function getSubpixelHeightOffset() {
+    return (window.innerHeight % 2) / 2;
+}
+
+function getSubpixelWidthOffset() {
+    return (window.innerWidth % 2) == 0 ? 0 : 0.5;
+}
+
 function createTempSquares() {
     let oldSquares = [[], [], [], []];
     for(let i = 0; i < squares.length; i++) {
@@ -33,11 +48,21 @@ function createTempSquares() {
                 let nextSquare = document.createElement('div');
                 nextSquare.classList = squares[i][j].classList;
                 nextSquare.classList.add('animation-square');
-                nextSquare.style = "position: fixed;";
-                nextSquare.style.top = squares[i][j].offsetTop + 'px';
-                nextSquare.style.left = squares[i][j].offsetLeft + 'px';
-                nextSquare.style.width = squares[i][j].offsetWidth + 'px';
-                nextSquare.style.height = squares[i][j].offsetHeight + 'px';
+                nextSquare.style.top = (squares[i][j].offsetTop) + 'px';
+                nextSquare.style.left = (squares[i][j].offsetLeft - getSubpixelWidthOffset()) + 'px';
+                nextSquare.style.width = (squares[i][j].offsetWidth - gridBorderWidth*2) + 'px';
+                nextSquare.style.height = (squares[i][j].offsetHeight - gridBorderWidth*2 - getSubpixelHeightOffset()) + 'px';
+                /* 
+                    Previously, when the tiles were animated the text inside would move a just noticable amount.
+                    The only conclusion I could come to was that it had to do with subpixel rendering.
+                    I have no idea why the getSubpixelHeightOffset() works. 
+                    I was literally just like "I wonder what happens if I add 0.5 to the height calculation" 
+                    and it fixed the weird text wobble.
+                    Eventually, I realized that when the vertical resolution was an even number, the wobble would come back.
+                    Thats how this solution came about.
+                    As for the getSubpixelWidthOffset() I have no clue why but it works with the left attribute instead of width.
+                    In conclusion: I have a headache, CSS is stupid, JS is stupid, everything is stupid, and trial and error works.
+                */
                 nextSquare.innerText = squares[i][j].innerText;
                 gameDiv.appendChild(nextSquare);
 
@@ -51,14 +76,28 @@ function createTempSquares() {
     return oldSquares;
 }
 
-function clearTempSquares(oldSquares) {
-    for(let i = 0; i < oldSquares.length; i++) {
-        for(let j = 0; j < oldSquares[i].length; j++) {
-            if(oldSquares[i][j] != null) {
-                oldSquares[i][j].remove();
-            }
+function clearTempSquares() {
+    let oldSquares = document.querySelectorAll('.animation-square');
+    oldSquares.forEach((squ) => {
+        if(squ != null) {
+            squ.remove();
         }
-    }
+    });
+}
+
+function startMurge(oldSquares, a1, a2, b1, b2) {
+    let oldNum = oldSquares[a1][a2].innerText;
+    oldSquares[a1][a2].classList.remove("x" + oldNum);
+    oldSquares[a1][a2].classList.add("x" + (oldNum*2), "merge-square");
+    oldSquares[b1][b2].classList.remove("x" + oldNum);
+    oldSquares[b1][b2].classList.add("x" + (oldNum*2), "merge-square");
+
+    setTimeout(() => {
+        oldSquares[a1][a2].innerText = (oldNum*2);
+        oldSquares[b1][b2].innerText = (oldNum*2);
+        oldSquares[a1][a2].classList.remove("merge-square");
+        oldSquares[b1][b2].classList.remove("merge-square");
+    }, animationTime/2);
 }
 
 function updateSquares(animation = "none") {
@@ -77,7 +116,7 @@ function updateSquares(animation = "none") {
             let lastWasMurge = false;
             for(let j = 0; j < oldSquares[i].length; j++) {
                 if(oldSquares[i][j]) {
-                    oldSquares[i][j].style.left = squares[i][offset].offsetLeft + "px";
+                    oldSquares[i][j].style.left = (squares[i][offset].offsetLeft - getSubpixelWidthOffset()) + "px";
 
                     let doMurge = false;
                     if(!lastWasMurge) {
@@ -86,6 +125,7 @@ function updateSquares(animation = "none") {
                                 if(oldSquares[i][n].innerText == oldSquares[i][j].innerText) {
                                     doMurge = true;
                                     lastWasMurge = true;
+                                    startMurge(oldSquares, i, n, i, j);
                                 }
                                 n = 1000;
                             }
@@ -102,8 +142,6 @@ function updateSquares(animation = "none") {
 
         setTimeout(() => {
             updateSquares();
-
-            clearTempSquares(oldSquares);
         }, animationTime);
     }
     else if(animation == 'right') {
@@ -121,7 +159,7 @@ function updateSquares(animation = "none") {
             let lastWasMurge = false;
             for(let j = oldSquares[i].length - 1; j >= 0; j--) {
                 if(oldSquares[i][j]) {
-                    oldSquares[i][j].style.left = squares[i][offset].offsetLeft + "px";
+                    oldSquares[i][j].style.left = (squares[i][offset].offsetLeft - getSubpixelWidthOffset()) + "px";
 
                     let doMurge = false;
                     if(!lastWasMurge) {
@@ -130,6 +168,7 @@ function updateSquares(animation = "none") {
                                 if(oldSquares[i][n].innerText == oldSquares[i][j].innerText) {
                                     doMurge = true;
                                     lastWasMurge = true;
+                                    startMurge(oldSquares, i, n, i, j);
                                 }
                                 n = -1;
                             }
@@ -146,8 +185,6 @@ function updateSquares(animation = "none") {
 
         setTimeout(() => {
             updateSquares();
-
-            clearTempSquares(oldSquares);
         }, animationTime);
     }
     else if(animation == 'up') {
@@ -174,6 +211,7 @@ function updateSquares(animation = "none") {
                                 if(oldSquares[n][i].innerText == oldSquares[j][i].innerText) {
                                     doMurge = true;
                                     lastWasMurge = true;
+                                    startMurge(oldSquares, n, i, j, i);
                                 }
                                 n = 1000;
                             }
@@ -190,8 +228,6 @@ function updateSquares(animation = "none") {
 
         setTimeout(() => {
             updateSquares();
-
-            clearTempSquares(oldSquares);
         }, animationTime);
     }
     else if(animation == 'down') {
@@ -218,6 +254,7 @@ function updateSquares(animation = "none") {
                                 if(oldSquares[n][i].innerText == oldSquares[j][i].innerText) {
                                     doMurge = true;
                                     lastWasMurge = true;
+                                    startMurge(oldSquares, n, i, j, i);
                                 }
                                 n = -1;
                             }
@@ -234,8 +271,6 @@ function updateSquares(animation = "none") {
 
         setTimeout(() => {
             updateSquares();
-
-            clearTempSquares(oldSquares);
         }, animationTime);
     }
     else {
@@ -258,6 +293,8 @@ function updateSquares(animation = "none") {
                 }
             }
         }
+
+        clearTempSquares();
     }
 }
 
@@ -269,35 +306,6 @@ function hasEmptyValues() {
             }
         }
     }
-    return false;
-}
-
-function canContinue() {
-    if(hasEmptyValues()) {
-        return true;
-    }
-
-    let lastValues = values;
-    moveLeft();
-    if(!compareValues(lastValues)) {
-        return true;
-    }
-    values = lastValues;
-    moveRight();
-    if(!compareValues(lastValues)) {
-        return true;
-    }
-    values = lastValues;
-    moveUp();
-    if(!compareValues(lastValues)) {
-        return true;
-    }
-    values = lastValues;
-    moveDown();
-    if(!compareValues(lastValues)) {
-        return true;
-    }
-    values = lastValues;
     return false;
 }
 
@@ -442,17 +450,25 @@ document.addEventListener('keyup', (event) => {
 
     switch(event.key) {
         case 'ArrowUp':
+            updateSquares();
             moveUp();
             break;
         case 'ArrowDown':
+            updateSquares();
             moveDown();
             break;
         case 'ArrowLeft':
+            updateSquares();
             moveLeft();
             break;
         case 'ArrowRight':
+            updateSquares();
             moveRight();
             break;
+        case 'r':
+        case 'R':
+            reset();
+            return;
     }
 
     setTimeout(() => {
@@ -464,11 +480,16 @@ document.addEventListener('keyup', (event) => {
     }, animationTime);
 });
 
-function init() {
+function reset() {
     initGrid();
 
     spawnSquares();
     spawnSquares();
+}
+
+function init() {
+    setAnimationTime(100);
+    reset();
 }
 
 init();
