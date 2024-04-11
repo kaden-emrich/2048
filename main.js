@@ -272,6 +272,35 @@ function hasEmptyValues() {
     return false;
 }
 
+function canContinue() {
+    if(hasEmptyValues()) {
+        return true;
+    }
+
+    let lastValues = values;
+    moveLeft();
+    if(!compareValues(lastValues)) {
+        return true;
+    }
+    values = lastValues;
+    moveRight();
+    if(!compareValues(lastValues)) {
+        return true;
+    }
+    values = lastValues;
+    moveUp();
+    if(!compareValues(lastValues)) {
+        return true;
+    }
+    values = lastValues;
+    moveDown();
+    if(!compareValues(lastValues)) {
+        return true;
+    }
+    values = lastValues;
+    return false;
+}
+
 function compareValues(otherValues) {
     for(let i = 0; i < values.length; i++) {
         for(let j = 0; j < values[i].length; j++) {
