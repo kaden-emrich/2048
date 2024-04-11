@@ -491,29 +491,41 @@ function testGameOver() {
 }
 
 function gameOver() {
-    alert("game over");
+    document.getElementById('lose-screen').classList.remove('invisable');
 }
 
 document.addEventListener('keyup', (event) => {
     let lastValues = JSON.stringify(values);
 
     switch(event.key) {
+        case 'w':
+        case 'W':
         case 'ArrowUp':
             updateSquares();
             moveUp();
             break;
+
+        case 's':
+        case 'S':
         case 'ArrowDown':
             updateSquares();
             moveDown();
             break;
+
+        case 'a':
+        case 'A':
         case 'ArrowLeft':
             updateSquares();
             moveLeft();
             break;
+
+        case 'd':
+        case 'D':
         case 'ArrowRight':
             updateSquares();
             moveRight();
             break;
+            
         case 'r':
         case 'R':
             reset();
@@ -527,7 +539,7 @@ document.addEventListener('keyup', (event) => {
         else if(!compareValues(JSON.parse(lastValues))) {
             spawnSquares();
         }
-    }, animationTime);
+    }, animationTime + 1);
 });
 
 function reset() {
@@ -535,6 +547,7 @@ function reset() {
 
     spawnSquares();
     spawnSquares();
+    document.getElementById('lose-screen').classList.add('invisable');
 }
 
 function init() {
