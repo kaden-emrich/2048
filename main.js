@@ -403,47 +403,96 @@ function slide(array) {
     return fillZeros(array);
 }
 
-function moveLeft() {
-    for(let i = 0; i < values.length; i++) {
-        values[i] = slide(values[i]);
+function moveLeft(test = false) {
+    let output = [...values];
+    for(let i = 0; i < output.length; i++) {
+        output[i] = slide(output[i]);
     }
-    
-    updateSquares('left');
+
+    if(test) {
+        return output;
+    }
+    else {
+        values = output;
+        updateSquares('left');
+    }
 }
 
-function moveRight() {
-    for(let i = 0; i < values.length; i++) {
-        values[i] = reverse(slide(reverse(values[i])));
+function moveRight(test = false) {
+    let output = [...values];
+    for(let i = 0; i < output.length; i++) {
+        output[i] = reverse(slide(reverse(output[i])));
     }
-    
-    updateSquares('right');
+
+    if(test) {
+        return output;
+    }
+    else {
+        values = output;
+        updateSquares('right');
+    }
 }
 
-function moveUp() {
+function moveUp(test = false) {
     let flipedValues = flip(values);
 
     for(let i = 0; i < flipedValues[0].length; i++) {
         flipedValues[i] = slide(flipedValues[i]);
     }
 
-    values = flip(flipedValues);
+    let output = flip(flipedValues);
 
-    updateSquares('up');
+    if(test) {
+        return output;
+    }
+    else {
+        values = output;
+        updateSquares('up');
+    }
 }
 
-function moveDown() {
+function moveDown(test = false) {
     let flipedValues = flip(values);
 
     for(let i = 0; i < flipedValues[0].length; i++) {
         flipedValues[i] = reverse(slide(reverse(flipedValues[i])));
     }
 
-    values = flip(flipedValues);
+    let output = flip(flipedValues);
 
-    updateSquares('down');
+    if(test) {
+        return output;
+    }
+    else {
+        values = output;
+        updateSquares('down');
+    }
+    
 }
 
-var testVar1 = 0;
+function testGameOver() {
+    if(!compareValues(moveLeft(true))) {
+        return false;
+    }
+
+    if(!compareValues(moveRight(true))) {
+        return false;
+    }
+
+    if(!compareValues(moveUp(true))) {
+        return false;
+    }
+
+    if(!compareValues(moveDown(true))) {
+        return false;
+    }
+
+    return true;
+}
+
+function gameOver() {
+    alert("game over");
+}
 
 document.addEventListener('keyup', (event) => {
     let lastValues = JSON.stringify(values);
@@ -472,9 +521,10 @@ document.addEventListener('keyup', (event) => {
     }
 
     setTimeout(() => {
-        if(!compareValues(JSON.parse(lastValues))) {
-            // console.log('spawning squares' + testVar1); // for debugging
-            testVar1 ++;
+        if(testGameOver()) {
+            gameOver();
+        }
+        else if(!compareValues(JSON.parse(lastValues))) {
             spawnSquares();
         }
     }, animationTime);
@@ -494,13 +544,3 @@ function init() {
 
 init();
 
-function test1() {
-    initGrid();
-    values = [
-        [3, 6, 12, 24],
-        [48, 96, 192, 384],
-        [768, 1536, 3072, 6144],
-        [12288, 12288, 12288, 12288]
-    ]
-    updateSquares();
-}
